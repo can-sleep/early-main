@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>early 眠</title>
+<!-- 引入 Chart.js 用于月度统计图表 -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacMacFont, "Segoe UI", sans-serif;
+  background: linear-gradient(to bottom, #e6d8f0, #d4b8e8, #f0d8e8);
+  padding: 20px;
+  color: #555;
+  position: relative;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* 顶部梦幻星空层 */
+.sky-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 280px;
+  background: linear-gradient(to bottom, #b39ddb, #d1c4e9, transparent);
+  z-index: -1;
+  overflow: hidden;
+}
+
+/* 悬挂星星样式 */
+.star {
+  position: absolute;
+  color: #fff;
+  opacity: 0.8;
+  filter: drop-shadow(0 0 3px rgba(255,255,255,0.6));
+  animation: starSway 6s infinite ease-in-out;
+}
+.star::before {
+  content: "⭐";
+  display: block;
+}
+.star.small::before { content: "✨"; font-size: 12px; }
+.star.medium::before { content: "⭐"; font-size: 20px; }
+.star.large::before { content: "🌟"; font-size: 32px; }
+.star.pink { color: #ffd6e8; }
+.star.yellow { color: #fff8c4; }
+
+@keyframes starSway {
+  0% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(5deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* 悬挂星星的线 */
+.star-line {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255,255,255,0.3);
+}
+
+/* 睡觉月亮 */
+.sleep-moon {
+  position: absolute;
+  top: 40px;
+  right: 80px;
+  width: 120px;
+  height: 120px;
+  background: #fff8c4;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255,248,196,0.6);
+  z-index: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: moonPulse 4s infinite alternate;
+}
+@keyframes moonPulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.06); opacity: 1; }
+}
+
+/* 月亮睡脸 */
+.moon-face {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.moon-eye {
+  position: absolute;
+  top: 35px;
+  width: 18px;
+  height: 8px;
+  border-top: 3px solid #666;
+  border-radius: 50%;
+}
+.moon-eye.left { left: 28px; }
+.moon-eye.right { right: 28px; }
+.moon-mouth {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 15px;
+  border-bottom: 3px solid #666;
+  border-radius: 0 0 50% 50%;
+}
+.moon-blush {
+  position: absolute;
+  top: 50px;
+  width: 16px;
+  height: 12px;
+  background: rgba(255,182,193,0.4);
+  border-radius: 50%;
+}
+.moon-blush.left { left: 18px; }
+.moon-blush.right { right: 18px; }
+
+/* 云朵 */
+.cloud {
+  position: absolute;
+  opacity: 0.35;
+  color: #ffffff;
+  animation: float 45s infinite linear;
+  z-index: -1;
+  filter: blur(0.5px);
+}
+.cloud1 { top: 12%; left: -150px; font-size: 70px; animation-duration: 45s; }
+.cloud2 { top: 28%; right: -120px; font-size: 50px; animation-duration: 55s; }
+.cloud3 { top: 55%; left: -100px; font-size: 60px; animation-duration: 50s; }
+.cloud4 { top: 75%; right: -80px; font-size: 45px; animation-duration: 60s; }
+
+@keyframes float {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(60px); }
+  100% { transform: translateX(0); }
+}
+
+.container {
+  max-width: 700px;
+  margin: 220px auto 0;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  text-align: center;
+  margin: 40px 0 30px;
+}
+
+.header h1 {
+  font-size: 30px;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(140, 166, 230, 0.5);
+  font-weight: 500;
+}
+
+.header p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.8);
+  margin-top: 6px;
+}
+
+/* 卡片入场动画 */
+.card {
+  background: rgba(255,255,255,0.9);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 20px rgba(140, 166, 230, 0.1);
+  border: 1px solid #e6edff;
+  animation: cardIn 0.6s ease-out backwards;
+}
+.card:nth-child(3) { animation-delay: 0.1s; }
+.card:nth-child(4) { animation-delay: 0.2s; }
+.card:nth-child(5) { animation-delay: 0.3s; }
+.card:nth-child(6) { animation-delay: 0.4s; }
+.card:nth-child(7) { animation-delay: 0.5s; }
+.card:nth-child(8) { animation-delay: 0.6s; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card h2 {
+  font-size: 18px;
+  color: #8ca6e6;
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+
+input, select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #dce6ff;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: #fbfcff;
+  font-size: 15px;
+  outline: none;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(to right, #a8c0ff, #e6b3d6);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  margin-top: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+button:active { transform: scale(0.97); }
+
+.result {
+  margin-top: 14px;
+  padding: 12px;
+  background: #f6f9ff;
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid #e6eeff;
+  white-space: pre-line;
+}
+
+.check-group label {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 15px;
+  gap: 8px;
+}
+
+/* 新增：睡眠分析卡片样式 */
+.time-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.time-input-group input {
+    flex: 1;
+    margin-bottom: 0;
+}
+.time-input-group button {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+/* 日历网格样式 */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    font-size: 12px;
+}
+.calendar-grid div {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    background: #f0f4ff;
+    position: relative;
+}
+.calendar-grid .day-header {
+    background: #e6eeff;
+    font-weight: bold;
+}
+.calendar-grid .has-data {
+    background: #d1e7dd;
+    font-weight: bold;
+    color: #0f5132;
+}
+.calendar-grid .other-month {
+    color: #ccc;
+    background: transparent;
+}
+/* 图表容器 */
+.chart-container {
+    width: 100%;
+    height: 200px;
+    margin-top: 20px;
+}
+
+/* 双人打卡日历样式 */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin: 14px 0;
+}
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 13px;
+  background: #f6f9ff;
+  position: relative;
+}
+.calendar-day.checked {
+  background: #a8c0ff;
+  color: white;
+}
+.calendar-day.checked::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border: 2px solid #fff;
+  border-radius: 6px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 顶部梦幻星空背景 -->
+<div class="sky-bg">
+  <div class="star-line" style="left: 8%;"></div>
+  <div class="star-line" style="left: 18%;"></div>
+  <div class="star-line" style="left: 28%;"></div>
+  <div class="star-line" style="left: 38%;"></div>
+  <div class="star-line" style="left: 52%;"></div>
+  <div class="star-line" style="left: 62%;"></div>
+  <div class="star-line" style="left: 72%;"></div>
+  <div class="star-line" style="left: 82%;"></div>
+  <div class="star-line" style="left: 92%;"></div>
+
+  <div class="star small yellow" style="left: 8%; top: 40px;"></div>
+  <div class="star medium pink" style="left: 18%; top: 80px;"></div>
+  <div class="star small yellow" style="left: 28%; top: 20px;"></div>
+  <div class="star large yellow" style="left: 38%; top: 60px;"></div>
+  <div class="star small pink" style="left: 52%; top: 10px;"></div>
+  <div class="star medium yellow" style="left: 62%; top: 90px;"></div>
+  <div class="star small pink" style="left: 72%; top: 30px;"></div>
+  <div class="star large pink" style="left: 82%; top: 70px;"></div>
+  <div class="star small yellow" style="left: 92%; top: 50px;"></div>
+
+  <div class="sleep-moon">
+    <div class="moon-face">
+      <div class="moon-eye left"></div>
+      <div class="moon-eye right"></div>
+      <div class="moon-mouth"></div>
+      <div class="moon-blush left"></div>
+      <div class="moon-blush right"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cloud cloud1">☁️</div>
+<div class="cloud cloud2">☁️</div>
+<div class="cloud cloud3">☁️</div>
+<div class="cloud cloud4">☁️</div>
+
+<div class="container">
+  <div class="header">
+    <h1>🌙 early 眠</h1>
+    <p>温柔陪伴你，好好睡觉</p>
+  </div>
+
+  <!-- 1. 科学睡眠记账（你原版，日历+图表完好） -->
+  <div class="card">
+    <h2>1. 科学睡眠记账</h2>
+    <div class="time-input-group">
+        <input type="time" id="bedTime" min="20:00" max="07:00" step="1800"
+               placeholder="选择你昨晚的入睡时间 (20:00-07:00)">
+        <button onclick="calc()">分析与记录</button>
+    </div>
+    <div class="result" id="res1"></div>
+
+    <div class="calendar-container" style="margin-top: 15px;">
+        <div class="calendar-header">
+            <h3 style="margin: 0; color: #8ca6e6; font-size: 16px;">本月睡眠日历</h3>
+            <div>
+                <button onclick="prevMonth()" style="padding: 2px 8px; font-size: 12px;">‹</button>
+                <span id="calendar-month" style="margin: 0 5px; font-size: 14px;"></span>
+                <button onclick="nextMonth()" style="padding: 2px 8px; font-size: 12px;">›</button>
+            </div>
+        </div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="sleepChart"></canvas>
+    </div>
+  </div>
+
+  <!-- 2. 健康算命（自动分析+保健品推荐） -->
+  <div class="card">
+    <h2>2. 健康算命</h2>
+    <button onclick="fortune()">自动分析我的熬夜状况</button>
+    <div class="result" id="res2"></div>
+  </div>
+
+  <!-- 3. 早睡打卡 -->
+  <div class="card">
+    <h2>3. 早睡打卡</h2>
+    <button onclick="checkin()">今日打卡</button>
+    <div class="result" id="res3"></div>
+  </div>
+
+  <!-- 4. 熬夜赏罚（新版） -->
+  <div class="card">
+    <h2>4. 熬夜赏罚 🎁</h2>
+    <button onclick="reward()">查看我的奖励</button>
+    <div class="result" id="res4"></div>
+  </div>
+
+  <!-- 5. 睡个好觉（新版） -->
+  <div class="card">
+    <h2>5. 睡个好觉 💤</h2>
+    <div class="check-group">
+      <label><input type="checkbox" class="sym" value="头痛"> 头痛</label>
+      <label><input type="checkbox" class="sym" value="眼干"> 眼睛干涩</label>
+      <label><input type="checkbox" class="sym" value="失眠"> 入睡困难</label>
+      <label><input type="checkbox" class="sym" value="疲惫"> 白天疲惫</label>
+      <label><input type="checkbox" class="sym" value="焦虑"> 情绪焦虑</label>
+      <label><input type="checkbox" class="sym" value="多梦"> 多梦易醒</label>
+    </div>
+    <button onclick="getAdvice()">获取专属助眠方案</button>
+    <div class="result" id="res5"></div>
+  </div>
+
+  <!-- 6. 早睡搭子（新版双人打卡） -->
+  <div class="card">
+    <h2>6. 早睡搭子 🤝 双人打卡</h2>
+    
+    <div id="partnerStatus" class="result" style="text-align:center; margin-bottom:12px;">
+      还未邀请搭子
+    </div>
+
+    <input type="text" id="friendName" placeholder="输入搭子昵称">
+    <input type="text" id="sleepGoal" placeholder="共同目标：如 23:00 前睡觉">
+    <button onclick="bindPartner()">绑定搭子 🤝</button>
+    
+    <div style="margin-top:16px;">
+      <h3 style="font-size:16px; color:#8ca6e6; margin-bottom:10px;">📅 本月打卡日历</h3>
+      <div id="calendar" class="calendar"></div>
+    </div>
+
+    <button onclick="partnerCheckin()" style="margin-top:12px;">✅ 今日双人打卡</button>
+    <div class="result" id="res6"></div>
+  </div>
+</div>
+
+<script>
+// ====================== 全局数据 ======================
+let data = JSON.parse(localStorage.getItem('sleepData')) || {
+  count: 0,
+  partner: null,
+  goal: '',
+  checkedDays: [],
+  today: new Date().toDateString()
+};
+
+// 睡眠记录（第1功能专用）
+let currentDateObj = new Date();
+let sleepRecords = JSON.parse(localStorage.getItem('sleepRecords')) || {};
+
+// 初始化
+renderCalendar();
+updatePartnerStatus();
+initCalendar();
+initChart();
+
+// ====================== 1. 科学睡眠记账（你原版） ======================
+function calc() {
+    const bedTimeStr = document.getElementById("bedTime").value;
+    if (!bedTimeStr) {
+        document.getElementById("res1").innerText = "请先选择一个入睡时间～";
+        return;
+    }
+
+    const [hours, minutes] = bedTimeStr.split(":").map(Number);
+    const bedtime = hours * 60 + minutes;
+    let resultMsg = "";
+
+    if (bedtime >= 0 && bedtime <= 7 * 60) {
+        resultMsg = "🌙 很晚才睡哦。错过了23点前的深睡黄金期，身体修复效率会降低，记得今天补个午觉。";
+    } else if (bedtime >= 23 * 60 && bedtime < 24 * 60) {
+        resultMsg = "💤 还不错，尽量在23点前入睡能保证生长激素分泌，坚持调整会更健康。";
+    } else if (bedtime >= 22 * 60 && bedtime < 23 * 60) {
+        resultMsg = "✅ 完美！这个时间段入睡符合生物钟规律，身体恢复效果最好。";
+    } else if (bedtime >= 20 * 60 && bedtime < 22 * 60) {
+        resultMsg = "☀️ 早睡达人！这个时间点能让你拥有超长待机的精力，太棒了！";
+    }
+
+    document.getElementById("res1").innerText = resultMsg;
+    document.getElementById("res1").style.color = resultMsg.includes("✅") || resultMsg.includes("☀️") ? "#0f5132" : "#746b00";
+    document.getElementById("res1").style.fontWeight = "500";
+
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    sleepRecords[dateKey] = bedTimeStr;
+    localStorage.setItem('sleepRecords', JSON.stringify(sleepRecords));
+
+    renderCalendar();
+    updateChart();
+}
+
+// 日历
+function initCalendar() {
+    renderSleepCalendar();
+    document.getElementById("calendar-month").innerText = `${currentDateObj.getFullYear()}年${currentDateObj.getMonth() + 1}月`;
+}
+
+function renderSleepCalendar() {
+    const grid = document.getElementById('calendar-grid');
+    grid.innerHTML = '';
+    const year = currentDateObj.getFullYear();
+    const month = currentDateObj.getMonth();
+
+    const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+    weekDays.forEach(day => {
+        const div = document.createElement('div');
+        div.className = 'day-header';
+        div.innerText = day;
+        grid.appendChild(div);
+    });
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startDay = firstDay.getDay();
+
+    for (let i = 0; i < startDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'other-month';
+        grid.appendChild(div);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const div = document.createElement('div');
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        div.innerText = day;
+
+        if (sleepRecords[dateStr]) {
+            div.classList.add('has-data');
+            div.title = `入睡时间: ${sleepRecords[dateStr]}`;
+        }
+
+        div.onclick = () => {
+            const newTime = prompt(`修改 ${dateStr} 的入睡时间 (格式: HH:MM)：`, sleepRecords[dateStr] || "");
+            if (newTime) {
+                sleepRecords[dateStr] = newTime;
+                localStorage.setItem('sleepRecords', JSON.stringify(sleepRecords));
+                renderSleepCalendar();
+                updateChart();
+            }
+        };
+        grid.appendChild(div);
+    }
+}
+
+function prevMonth() {
+    currentDateObj.setMonth(currentDateObj.getMonth() - 1);
+    updateCalendarMonth();
+}
+
+function nextMonth() {
+    currentDateObj.setMonth(currentDateObj.getMonth() + 1);
+    updateCalendarMonth();
+}
+
+function updateCalendarMonth() {
+    document.getElementById("calendar-month").innerText = `${currentDateObj.getFullYear()}年${currentDateObj.getMonth() + 1}月`;
+    renderSleepCalendar();
+}
+
+// 图表
+let sleepChartInstance = null;
+function initChart() {
+    const ctx = document.getElementById('sleepChart').getContext('2d');
+    sleepChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '入睡时间 (小时制)',
+                data: [],
+                backgroundColor: 'rgba(140, 166, 230, 0.6)',
+                borderColor: 'rgba(140, 166, 230, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 24,
+                    ticks: {
+                        callback: function (value) {
+                            return value.toFixed(0) + '点';
+                        }
+                    }
+                }
+            }
+        }
+    });
+    updateChart();
+}
+
+function updateChart() {
+    if (!sleepChartInstance) return;
+
+    const year = currentDateObj.getFullYear();
+    const month = currentDateObj.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    const labels = [];
+    const data = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        if (sleepRecords[dateStr]) {
+            const time = sleepRecords[dateStr];
+            const [h, m] = time.split(':');
+            labels.push(`${month + 1}/${day}`);
+            data.push(parseFloat(h) + parseFloat(m) / 60);
+        }
+    }
+
+    sleepChartInstance.data.labels = labels;
+    sleepChartInstance.data.datasets[0].data = data;
+    sleepChartInstance.update();
+}
+
+// ====================== 2. 健康算命（新版自动分析） ======================
+function fortune() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+
+  let recordsThisMonth = [];
+  for (const dateStr in sleepRecords) {
+    if (dateStr.startsWith(`${year}-${String(month).padStart(2, '0')}`)) {
+      recordsThisMonth.push(sleepRecords[dateStr]);
+    }
+  }
+
+  if (recordsThisMonth.length === 0) {
+    document.getElementById("res2").innerText = "💤 请先在「科学睡眠记账」里记录几天睡眠，我才能帮你算命哦～";
+    return;
+  }
+
+  let lateCount = 0;
+  recordsThisMonth.forEach(time => {
+    const [h] = time.split(':').map(Number);
+    if (h >= 23 || h <= 5) lateCount++;
+  });
+
+  const total = recordsThisMonth.length;
+  const rate = lateCount / total;
+  let title, desc, goods;
+
+  if (rate < 0.2) {
+    title = "🟢 健康状态：偶尔熬夜";
+    desc = `本月记录 ${total} 天，熬夜 ${lateCount} 天。作息整体稳定，身体负担较轻。`;
+    goods = "✅ 推荐：基础保养即可\n• 维生素B族（缓解疲劳）\n• 叶黄素（护眼）\n• 温热足浴包";
+  } else if (rate < 0.5) {
+    title = "🟡 注意状态：经常熬夜";
+    desc = `本月记录 ${total} 天，熬夜 ${lateCount} 天。肝脏修复时间不足，易疲劳、皮肤变差。`;
+    goods = "✅ 针对性推荐\n• 奶蓟草片（护肝）\n• 胶原蛋白/葡萄籽（抗老）\n• 褪黑素软糖（助眠）\n• 蒸汽眼罩";
+  } else {
+    title = "🔴 警报状态：严重熬夜";
+    desc = `本月记录 ${total} 天，熬夜 ${lateCount} 天。长期熬夜会影响免疫力、记忆力、内分泌。`;
+    goods = "✅ 必需保健消费\n• 复合维生素+辅酶Q10\n• 护肝片+GABA助眠\n• 睡眠喷雾/真丝眼罩\n• 按摩仪/颈椎舒缓";
+  }
+
+  const result = `${title}\n${desc}\n\n${goods}`;
+  document.getElementById("res2").innerText = result;
+}
+
+// ====================== 3. 打卡 ======================
+function checkin() {
+  if (!data.checkedDays.includes(data.today)) {
+    data.checkedDays.push(data.today);
+    data.count++;
+    save();
+    renderCalendar();
+  }
+  document.getElementById("res3").innerText = `✅ 打卡成功！累计 ${data.count} 天`;
+}
+
+// ====================== 4. 熬夜赏罚 ======================
+function reward() {
+  let c = data.count;
+  let txt = "";
+
+  if (c === 0) {
+    txt = "💤 今天还未打卡，先完成早睡再领奖励哦～";
+  } 
+  else if (c < 7) {
+    txt = `🎁 你已坚持 ${c} 天\n再坚持 ${7 - c} 天，即可解锁 【助眠眼罩】🎭`;
+  } 
+  else if (c < 14) {
+    txt = `🎭 已获得：助眠眼罩\n继续坚持 ${14 - c} 天，解锁 【草本助眠香囊】🌿`;
+  } 
+  else if (c < 30) {
+    txt = `🎭 眼罩 ✅  🌿 香囊 ✅\n再坚持 ${30 - c} 天，终极大奖 【软乎乎安睡抱枕】🧸`;
+  } 
+  else {
+    txt = `🎉 恭喜你集齐全部奖励！\n🎭 助眠眼罩\n🌿 草本助眠香囊\n🧸 软乎乎安睡抱枕\n你就是最会照顾自己的早睡小天使～`;
+  }
+
+  document.getElementById("res4").innerText = txt;
+}
+
+// ====================== 5. 助眠方案 ======================
+function getAdvice() {
+  let res = [];
+  document.querySelectorAll(".sym:checked").forEach(s => {
+    switch(s.value) {
+      case "头痛": res.push("🧠 热敷额头，暗光静躺10分钟"); break;
+      case "眼干": res.push("👀 远离手机，闭目休息"); break;
+      case "失眠": res.push("🌙 478呼吸法放松"); break;
+      case "疲惫": res.push("☁ 提前30分钟上床"); break;
+      case "焦虑": res.push("💛 写下烦恼，明天再解决"); break;
+      case "多梦": res.push("🌫️ 室温偏凉，被子轻薄"); break;
+    }
+  });
+  if (!res.length) res.push("✅ 状态很棒，安心睡吧");
+  document.getElementById("res5").innerText = res.join("\n");
+}
+
+// ====================== 6. 搭子功能 ======================
+function bindPartner() {
+  let name = document.getElementById("friendName").value.trim();
+  let goal = document.getElementById("sleepGoal").value.trim();
+  if (!name || !goal) {
+    document.getElementById("res6").innerText = "请填写完整信息～";
+    return;
+  }
+  data.partner = name;
+  data.goal = goal;
+  save();
+  updatePartnerStatus();
+  document.getElementById("res6").innerText = `🤝 绑定成功！\n搭子：${name}\n目标：${goal}`;
+}
+
+function partnerCheckin() {
+  if (!data.partner) {
+    document.getElementById("res6").innerText = "请先绑定搭子再双人打卡～";
+    return;
+  }
+  if (data.checkedDays.includes(data.today)) {
+    document.getElementById("res6").innerText = "✅ 今天已经和搭子一起打卡过啦！";
+    return;
+  }
+  data.checkedDays.push(data.today);
+  data.count++;
+  save();
+  renderCalendar();
+  document.getElementById("res6").innerText = 
+    `🤍 双人打卡成功！\n` +
+    `你和 @${data.partner} 共同坚持 ${data.count} 天\n` +
+    `一起早睡，一起变优秀 ✨`;
+}
+
+function updatePartnerStatus() {
+  let el = document.getElementById("partnerStatus");
+  if (!data.partner) {
+    el.innerText = "💤 等待你的早睡搭子…";
+  } else {
+    el.innerText = `🤝 搭子：${data.partner}\n目标：${data.goal}\n共同打卡：${data.count} 天`;
+  }
+}
+
+// 双人打卡日历
+function renderCalendar() {
+  let cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  let now = new Date();
+  let year = now.getFullYear();
+  let month = now.getMonth();
+  let firstDay = new Date(year, month, 1).getDay();
+  let daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    let empty = document.createElement("div");
+    cal.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    let dayEl = document.createElement("div");
+    dayEl.className = "calendar-day";
+    dayEl.innerText = d;
+    let checkDate = new Date(year, month, d).toDateString();
+    if (data.checkedDays.includes(checkDate)) {
+      dayEl.classList.add("checked");
+    }
+    cal.appendChild(dayEl);
+  }
+}
+
+function save() {
+  localStorage.setItem('sleepData', JSON.stringify(data));
+}
+</script>
+</body>
+</html>
